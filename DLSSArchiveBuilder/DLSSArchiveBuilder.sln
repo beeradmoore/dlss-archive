@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31624.102
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DLSSArchiveBuilder", "DLSSArchiveBuilder\DLSSArchiveBuilder.csproj", "{683261C7-1BC9-4480-95FF-1C3EA53DF410}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{683261C7-1BC9-4480-95FF-1C3EA53DF410}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{683261C7-1BC9-4480-95FF-1C3EA53DF410}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{683261C7-1BC9-4480-95FF-1C3EA53DF410}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{683261C7-1BC9-4480-95FF-1C3EA53DF410}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1B053EB1-F0B7-4017-A650-345FE1D48F37}
+	EndGlobalSection
+EndGlobal
