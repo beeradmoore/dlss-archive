@@ -421,5 +421,18 @@
       "zip_file_size": 9858170
     }
   ],
-  "experimental": []
+  "experimental": [
+    {
+      "version": "2.2.18.0",
+      "version_number": 562958544535552,
+      "additional_label": "Beta - White Collie 1",
+      "md5_hash": "B2B6FAE8936719CF81D6B5577F257C40",
+      "zip_md5_hash": "43E7F6DE011967C7C566D876AB818B75",
+      "download_url": "https://github.com/beeradmoore/dlss-archive/releases/download/v2.2.18.0_Beta_White_Collie_1/nvngx_dlss_2.2.18.0_Beta_White_Collie_1.zip",
+      "file_description": "NVIDIA DLSSv2 - Beta - White Collie 1 - DVS PRODUCTION",
+      "is_signature_valid": true,
+      "file_size": 14452944,
+      "zip_file_size": 9836993
+    }
+  ]
 }
