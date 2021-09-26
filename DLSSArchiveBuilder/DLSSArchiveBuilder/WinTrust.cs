@@ -339,7 +339,7 @@ namespace DLSSArchiveBuilder
                                 subject.
                         */
                         validSignature = true;
-                        System.Diagnostics.Debug.WriteLine("The file \"%s\" is signed and the signature was verified.", fileName);
+                        System.Diagnostics.Debug.WriteLine($"The file \"{fileName}\" is signed and the signature was verified.");
                         break;
 
                     case WinVerifyTrustResult.TRUST_E_NOSIGNATURE:
@@ -353,13 +353,13 @@ namespace DLSSArchiveBuilder
                             (uint)WinVerifyTrustResult.TRUST_E_PROVIDER_UNKNOWN == dwLastError)
                         {
                             // The file was not signed.
-                            System.Diagnostics.Debug.WriteLine("The file \"%s\" is not signed.", fileName);
+                            System.Diagnostics.Debug.WriteLine("The file \"{fileName}\" is not signed.");
                         }
                         else
                         {
                             // The signature was not valid or there was an error 
                             // opening the file.
-                            System.Diagnostics.Debug.WriteLine("An unknown error occurred trying to verify the signature of the \"%s\" file.", fileName);
+                            System.Diagnostics.Debug.WriteLine("An unknown error occurred trying to verify the signature of the \"{fileName}\" file.");
                         }
 
                         break;
