@@ -69,3 +69,6 @@ It will validate, create new zips, and output the `dlss_records.json` file. Diff
 ### Know of a DLSS version not found in this archive?
 Please file a new [issue](https://github.com/beeradmoore/dlss-archive/issues) so I can validate and track it down. 
 
+
+### Special thanks 
+Special thanks to [TechPowerUp](https://www.techpowerup.com/download/nvidia-dlss-dll/) for doing the groundwork to allow all of this to happen.
