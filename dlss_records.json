@@ -1,0 +1,17 @@
+{
+  "stable": [
+    {
+      "version": "1.0.0.0",
+      "version_number": 281474976710656,
+      "additional_label": "",
+      "md5_hash": "65D2E2A86352D77244A73BEDD5837F50",
+      "zip_md5_hash": "8AD2617AD75DA83CDFCBD36B5DF55CD0",
+      "download_url": "https://github.com/beeradmoore/dlss-archive/releases/download/v1.0.0.0/nvngx_dlss_1.0.0.0.zip",
+      "file_description": "NGX DLSS",
+      "is_signature_valid": true,
+      "file_size": 4522888,
+      "zip_file_size": 3914167
+    }
+  ],
+  "experimental": []
+}
