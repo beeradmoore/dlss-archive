@@ -13,54 +13,65 @@ using System.Text.Json.Serialization;
 
 namespace DLSSArchiveBuilder
 {
-    internal class LocalDll
+    internal class DLSSRecord
     {
         [JsonIgnore]
-        public string Filename { get; private set; }
+        public string Filename { get; set; }
 
         [JsonPropertyName("version")]
-        public string Version { get; private set; }
+        public string Version { get; set; }
 
         [JsonPropertyName("version_number")]
-        public ulong VersionNumber { get; private set; }
+        public ulong VersionNumber { get; set; }
+
+        [JsonPropertyName("additional_label")]
+        public string AdditionalLabel { get; set; } = String.Empty;
 
         [JsonPropertyName("md5_hash")]
-        public string MD5Hash { get; private set; }
+        public string MD5Hash { get; set; }
 
         [JsonPropertyName("zip_md5_hash")]
-        public string ZipMD5Hash { get; private set; }
+        public string ZipMD5Hash { get; set; }
 
         [JsonPropertyName("download_url")]
-        public string DownloadUrl { get; private set; } = "";
+        public string DownloadUrl { get; set; } = String.Empty;
+
+        [JsonPropertyName("file_description")]
+        public string FileDescription { get; set; } = String.Empty;
 
         [JsonIgnore]
-        public DateTime SignedDateTime { get; private set; } = DateTime.MinValue;
+        public DateTime SignedDateTime { get; set; } = DateTime.MinValue;
 
-        public LocalDll(string filename)
+        [JsonPropertyName("is_signature_valid")]
+        public bool IsSignatureValid { get; set; }
+
+        [JsonPropertyName("file_size")]
+        public long FileSize { get; set; }
+
+        [JsonPropertyName("zip_file_size")]
+        public long ZipFileSize { get; set; }
+
+
+        public DLSSRecord(string filename, bool ignoreInvalid = false)
         {
             Filename = filename;
-            var isValidSigned = WinTrust.VerifyEmbeddedSignature(filename);
-            if (isValidSigned == false)
+            IsSignatureValid = WinTrust.VerifyEmbeddedSignature(filename);
+            if (ignoreInvalid == false && IsSignatureValid == false)
             {
                 throw new Exception($"Error processing dll: Invalid signature found, {filename}");
             }
 
+            var fileInfo = new FileInfo(Filename);
+            FileSize = fileInfo.Length;
 
             SignedDateTime = GetSignedDateTime();
-
-                        // Set the creation time of the zip and the dll to the signed time.
-            File.SetCreationTime(filename, SignedDateTime);
-            //File.SetLastAccessTime(filename, DateTime.Now);
-            //File.SetLastWriteTimeUtc(filename, SignedDateTime);
-
 
             var versionInfo = FileVersionInfo.GetVersionInfo(filename);
             
             Version = $"{versionInfo.FileMajorPart}.{versionInfo.FileMinorPart}.{versionInfo.FileBuildPart}.{versionInfo.FilePrivatePart}";
+            FileDescription = versionInfo.FileDescription;
 
 
-            DownloadUrl = $"https://github.com/beeradmoore/dlss-archive/releases/download/v{Version}/nvngx_dlss_{Version}.zip";
-            
             // VersionNumber is used for ordering dlls in the case where 2.1.18.0 would order below 2.1.2.0.
             // VersionNumber is calculated by putting the each part into a 16bit section of a 64bit number
             // VersionNumber = [AAAAAAAAAAAAAAAA][BBBBBBBBBBBBBBBB][CCCCCCCCCCCCCCCC][DDDDDDDDDDDDDDDD]
@@ -84,31 +95,6 @@ namespace DLSSArchiveBuilder
                     MD5Hash = BitConverter.ToString(hash).Replace("-", "").ToUpperInvariant();
                 }
             }
-        }
-
-        internal string CreateZip(string outputDirectory)
-        {
-            var outputFile = Path.Combine(outputDirectory, $"nvngx_dlss_{Version}.zip");
-
-            using (var zipFile = File.Open(outputFile, FileMode.Create))
-            {
-                using (var zipArchive = new ZipArchive(zipFile, ZipArchiveMode.Create, true))
-                {
-                    zipArchive.CreateEntryFromFile(Filename, Path.GetFileName(Filename));
-                }
-
-                zipFile.Position = 0;
-
-                // Once again, MD5 should never be used to check if a file has been tampered with.
-                // We are simply using it to check the integrity of the downloaded/extracted file.
-                using (var md5 = MD5.Create())
-                {
-                    var hash = md5.ComputeHash(zipFile);
-                    ZipMD5Hash = BitConverter.ToString(hash).Replace("-", "").ToUpperInvariant();
-                }
-            }
-
-            return outputFile;
         }
 
 
