@@ -35,6 +35,18 @@
       "is_signature_valid": false,
       "file_size": 4502400,
       "zip_file_size": 3945948
+    },
+    {
+      "version": "1.0.13.0",
+      "version_number": 281474977562624,
+      "additional_label": "",
+      "md5_hash": "A8ED873E61FCB3A105D249824A0B0511",
+      "zip_md5_hash": "ED34FD4E961F3D4608CA9755D5FD3D9C",
+      "download_url": "https://github.com/beeradmoore/dlss-archive/releases/download/v1.0.13.0/nvngx_dlss_1.0.13.0.zip",
+      "file_description": "NGX DLSS - DVS PRODUCTION",
+      "is_signature_valid": false,
+      "file_size": 4502216,
+      "zip_file_size": 3949697
     }
   ],
   "experimental": []
