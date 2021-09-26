@@ -215,6 +215,18 @@
       "is_signature_valid": true,
       "file_size": 11887416,
       "zip_file_size": 8343249
+    },
+    {
+      "version": "2.1.40.0",
+      "version_number": 562954251010048,
+      "additional_label": "",
+      "md5_hash": "8E3AC0A089ABE2B319E2926B38DB0FF9",
+      "zip_md5_hash": "0A1A02D08BA3A6CC140969E7E1D06BE1",
+      "download_url": "https://github.com/beeradmoore/dlss-archive/releases/download/v2.1.40.0/nvngx_dlss_2.1.40.0.zip",
+      "file_description": "NVIDIA DLSSv2 - DVS PRODUCTION",
+      "is_signature_valid": true,
+      "file_size": 11888616,
+      "zip_file_size": 8343665
     }
   ],
   "experimental": []
