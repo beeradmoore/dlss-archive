@@ -69,6 +69,14 @@ namespace DLSSArchiveBuilder
 
                                 if (validFileDescriptions.Contains(dlssRecord.FileDescription))
                                 {
+                                    // Special case for DLSS 2.4.12 v2
+                                    if (dlssRecord.MD5Hash == "0A71EFBA8DAFF9C284CE6010923C01F1")
+                                    {
+                                        zipFilename = $"nvngx_dlss_{dlssRecord.Version}_v2.zip";
+                                        dlssRecord.AdditionalLabel = "v2";
+                                    }
+
+
                                     dlssRecords.Stable.Add(dlssRecord);
                                 }
                                 else
