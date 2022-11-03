@@ -3,16 +3,19 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace DLSSArchiveBuilder
 {
     class Program
     {
         static string OutputDirectory = Path.Combine(Directory.GetCurrentDirectory(), "output");
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             // Deleting directory is not instant, moving is :|
             if (Directory.Exists(OutputDirectory))
@@ -32,7 +35,95 @@ namespace DLSSArchiveBuilder
                 "NVIDIA DLSSv2 - DVS PRODUCTION",
             };
 
-            var baseDllDirectory = @"C:\DLSS\zips";
+            var baseDllDirectory = @"base_dlss";
+            if (Directory.Exists(baseDllDirectory) == false)
+            {
+                Directory.CreateDirectory(baseDllDirectory);
+            }
+
+            Console.WriteLine("Checking against DLSS-Archive");
+            using (var httpClient = new HttpClient())
+            {
+                var text = await httpClient.GetStringAsync("https://raw.githubusercontent.com/beeradmoore/dlss-archive/main/dlss_records.json");
+                var dlssRecrods = await httpClient.GetFromJsonAsync<DLSSRecords>("https://raw.githubusercontent.com/beeradmoore/dlss-archive/main/dlss_records.json");
+
+                var dlssToDownload = new List<(string OutputPath, DLSSRecord DLSSRecord)>();
+                foreach (var dlssRecord in dlssRecrods.Stable)
+                {
+                    var expectedPath = Path.Combine(baseDllDirectory, Path.GetFileName(dlssRecord.DownloadUrl));
+                    if (File.Exists(expectedPath))
+                    {
+                        var zipHash = String.Empty;
+                        using (var fileStream = File.Open(expectedPath, FileMode.Open))
+                        {
+                            using (var md5 = MD5.Create())
+                            {
+                                var hash = md5.ComputeHash(fileStream);
+                                zipHash = BitConverter.ToString(hash).Replace("-", "").ToUpperInvariant();
+                            }
+                        }
+
+                        if (zipHash != dlssRecord.ZipMD5Hash)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Invalid MD5 for {dlssRecord.DownloadUrl}. Expected {dlssRecord.ZipMD5Hash}, got {zipHash}");
+                            File.Delete(expectedPath);
+                            dlssToDownload.Add(new(expectedPath, dlssRecord));
+                        }
+                    }
+                    else
+                    {
+                        dlssToDownload.Add(new(expectedPath, dlssRecord));
+                    }
+                }
+                foreach (var dlssRecord in dlssRecrods.Experimental)
+                {
+                    var expectedPath = Path.Combine(baseDllDirectory, Path.GetFileName(dlssRecord.DownloadUrl));
+                    if (File.Exists(expectedPath))
+                    {
+                        var zipHash = String.Empty;
+                        using (var fileStream = File.Open(expectedPath, FileMode.Open))
+                        {
+                            using (var md5 = MD5.Create())
+                            {
+                                var hash = md5.ComputeHash(fileStream);
+                                zipHash = BitConverter.ToString(hash).Replace("-", "").ToUpperInvariant();
+                            }
+                        }
+
+                        if (zipHash != dlssRecord.ZipMD5Hash)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Invalid MD5 for {dlssRecord.DownloadUrl}. Expected {dlssRecord.ZipMD5Hash}, got {zipHash}");
+                            File.Delete(expectedPath);
+                            dlssToDownload.Add(new(expectedPath, dlssRecord));
+                        }
+                    }
+                    else
+                    {
+                        dlssToDownload.Add(new(expectedPath, dlssRecord));
+                    }
+                }
+
+                // Download all required DLSS files.
+                if (dlssToDownload.Any())
+                {
+                    var parallelOptions = new ParallelOptions()
+                    {
+                        //MaxDegreeOfParallelism = 3
+                    };
+
+                    await Parallel.ForEachAsync(dlssToDownload, parallelOptions, async (item, token) =>
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Downloading {item.DLSSRecord.DownloadUrl}");
+                        using (var stream = await httpClient.GetStreamAsync(item.DLSSRecord.DownloadUrl))
+                        {
+                            using (var fileStream = File.Create(item.OutputPath))
+                            {
+                                await stream.CopyToAsync(fileStream);
+                            }
+                        }
+                    });
+                }
+            }
 
             var files = Directory.GetFiles(baseDllDirectory, "*.zip", SearchOption.AllDirectories);
 

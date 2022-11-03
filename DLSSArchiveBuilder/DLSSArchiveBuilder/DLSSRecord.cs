@@ -51,6 +51,10 @@ namespace DLSSArchiveBuilder
         [JsonPropertyName("zip_file_size")]
         public long ZipFileSize { get; set; }
 
+        public DLSSRecord()
+        {
+
+        }
 
         public DLSSRecord(string filename, bool ignoreInvalid = false)
         {
