@@ -166,6 +166,11 @@ namespace DLSSArchiveBuilder
                                         zipFilename = $"nvngx_dlss_{dlssRecord.Version}_v2.zip";
                                         dlssRecord.AdditionalLabel = "v2";
                                     }
+                                    else if (dlssRecord.MD5Hash == "31BFD8F750F87E5040557D95C2345080")
+                                    {
+                                        zipFilename = $"nvngx_dlss_{dlssRecord.Version}_v3.zip";
+                                        dlssRecord.AdditionalLabel = "v3";
+                                    }
 
 
                                     dlssRecords.Stable.Add(dlssRecord);
