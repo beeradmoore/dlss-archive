@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DLSSArchiveBuilder": {
+      "commandName": "Project",
+      "workingDirectory": ".."
+    }
+  }
+}
