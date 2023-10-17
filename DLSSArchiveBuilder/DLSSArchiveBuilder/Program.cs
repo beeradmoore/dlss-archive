@@ -238,11 +238,15 @@ namespace DLSSArchiveBuilder
                 }
             }
 
-            dlssRecords.Stable.Sort((x, y) => x.VersionNumber.CompareTo(y.VersionNumber));
-            dlssRecords.Experimental.Sort((x, y) => x.VersionNumber.CompareTo(y.VersionNumber));
+            dlssRecords.Stable.Sort((x, y) => (x.VersionNumber == y.VersionNumber) ? x.AdditionalLabel.CompareTo(y.AdditionalLabel) : x.VersionNumber.CompareTo(y.VersionNumber));
+            dlssRecords.Experimental.Sort((x, y) => (x.VersionNumber == y.VersionNumber) ? x.AdditionalLabel.CompareTo(y.AdditionalLabel) : x.VersionNumber.CompareTo(y.VersionNumber));
 
             var json = JsonSerializer.Serialize(dlssRecords, new JsonSerializerOptions() { WriteIndented = true });
+#if DEBUG
+            File.WriteAllText(Path.Combine(OutputDirectory, "..", "..", "..", "..", "..", "..", "dlss_records.json"), json);
+#else
             File.WriteAllText(Path.Combine(OutputDirectory, "dlss_records.json"), json);
+#endif
             File.WriteAllText(Path.Combine(OutputDirectory, "additional_notes.txt"), additionalNotes.ToString());
 
             // This was used to backfill.
