@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -42,14 +43,21 @@ namespace DLSSArchiveBuilder
                 Directory.CreateDirectory(baseDllDirectory);
             }
 
+            DLSSRecords oldDLSSRecords;
             Console.WriteLine("Checking against DLSS-Archive");
             using (var httpClient = new HttpClient())
             {
                 var text = await httpClient.GetStringAsync("https://raw.githubusercontent.com/beeradmoore/dlss-archive/main/dlss_records.json");
-                var dlssRecrods = await httpClient.GetFromJsonAsync<DLSSRecords>("https://raw.githubusercontent.com/beeradmoore/dlss-archive/main/dlss_records.json");
+                oldDLSSRecords = await httpClient.GetFromJsonAsync<DLSSRecords>("https://raw.githubusercontent.com/beeradmoore/dlss-archive/main/dlss_records.json");
+
+                if (oldDLSSRecords == null)
+                {
+                    Console.WriteLine("ERROR: Could not get fetch DLSS records.");
+                    return;
+                }
 
                 var dlssToDownload = new List<(string OutputPath, DLSSRecord DLSSRecord)>();
-                foreach (var dlssRecord in dlssRecrods.Stable)
+                foreach (var dlssRecord in oldDLSSRecords.Stable)
                 {
                     var expectedPath = Path.Combine(baseDllDirectory, Path.GetFileName(dlssRecord.DownloadUrl));
                     if (File.Exists(expectedPath))
@@ -72,7 +80,7 @@ namespace DLSSArchiveBuilder
                         dlssToDownload.Add(new(expectedPath, dlssRecord));
                     }
                 }
-                foreach (var dlssRecord in dlssRecrods.Experimental)
+                foreach (var dlssRecord in oldDLSSRecords.Experimental)
                 {
                     var expectedPath = Path.Combine(baseDllDirectory, Path.GetFileName(dlssRecord.DownloadUrl));
                     if (File.Exists(expectedPath))
@@ -154,6 +162,68 @@ namespace DLSSArchiveBuilder
             var localDlls = new List<DLSSRecord>();
             foreach (var file in files)
             {
+                var currentFileName = Path.GetFileName(file);
+
+                //Console.WriteLine(file);
+
+                // See if we can find the existing record.
+                DLSSRecord existingRecord = null;
+                bool existingFromStable = false;
+                bool existingFromExperimental = false;
+
+                // Check stable records.
+                foreach (var dlssRecord in oldDLSSRecords.Stable)
+                {
+                    var dlssRecordFileName = Path.GetFileName(dlssRecord.DownloadUrl);
+                    if (dlssRecordFileName == currentFileName)
+                    {
+                        existingFromStable = true;
+                        existingRecord = dlssRecord;
+                        break;
+                    }
+                }
+
+                // Check experimental records as well.
+                if (existingRecord == null)
+                {
+                    foreach (var dlssRecord in oldDLSSRecords.Experimental)
+                    {
+                        var dlssRecordFileName = Path.GetFileName(dlssRecord.DownloadUrl);
+                        if (dlssRecordFileName == currentFileName)
+                        {
+                            existingFromExperimental = true;
+                            existingRecord = dlssRecord;
+                            break;
+                        }
+                    }
+                }
+
+                //Debugger.Break();
+                if (existingRecord != null)
+                {
+                    var existingHash = String.Empty;
+                    using (var fileStream = File.OpenRead(file))
+                    {
+                        existingHash = fileStream.GetMD5Hash();
+                    }
+
+                    // File matches what we expected
+                    if (existingRecord.ZipMD5Hash == existingHash)
+                    {
+                        if (existingFromStable)
+                        {
+                            dlssRecords.Stable.Add(existingRecord);
+                        }
+                        else if (existingFromExperimental)
+                        {
+                            dlssRecords.Experimental.Add(existingRecord);
+                        }
+
+                        continue;
+                    }
+                }
+
+
                 var dllOutputPath = Path.Combine(OutputDirectory, Path.GetFileNameWithoutExtension(file));
                 Directory.CreateDirectory(dllOutputPath);
                 using (var archive = ZipFile.OpenRead(file))
