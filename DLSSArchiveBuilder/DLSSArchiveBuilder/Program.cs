@@ -109,18 +109,45 @@ namespace DLSSArchiveBuilder
                 {
                     var parallelOptions = new ParallelOptions()
                     {
-                        //MaxDegreeOfParallelism = 3
+                        //MaxDegreeOfParallelism = 1
                     };
 
                     await Parallel.ForEachAsync(dlssToDownload, parallelOptions, async (item, token) =>
                     {
                         Console.WriteLine($"Downloading {item.DLSSRecord.DownloadUrl}");
-                        using (var stream = await httpClient.GetStreamAsync(item.DLSSRecord.DownloadUrl))
+                        try
                         {
-                            using (var fileStream = File.Create(item.OutputPath))
+                            // Download to a temp file first and if it is what we expected to download move it to usage directory.
+                            var tempFile = Path.GetTempFileName();
+
+                            using (var stream = await httpClient.GetStreamAsync(item.DLSSRecord.DownloadUrl))
                             {
-                                await stream.CopyToAsync(fileStream);
+                                using (var fileStream = File.Create(tempFile))
+                                {
+                                    await stream.CopyToAsync(fileStream);
+
+                                    await fileStream.FlushAsync();
+                                    fileStream.Position = 0;
+
+                                    using (var md5 = MD5.Create())
+                                    {
+                                        var hash = md5.ComputeHash(fileStream);
+                                        var downloadedFileHash = BitConverter.ToString(hash).Replace("-", "").ToUpperInvariant();
+
+                                        if (downloadedFileHash != item.DLSSRecord.ZipMD5Hash)
+                                        {
+                                            throw new Exception($"Expected zip hash of {item.DLSSRecord.ZipMD5Hash}, but got {downloadedFileHash}");
+                                        }
+                                    }
+                                }
                             }
+
+                            // File downloaded and validated successfully
+                            File.Move(tempFile, item.OutputPath);
+                        }
+                        catch (Exception err)
+                        {
+                            Console.WriteLine($"Error downloading {item.DLSSRecord.DownloadUrl}, {err.Message}");
                         }
                     });
                 }
