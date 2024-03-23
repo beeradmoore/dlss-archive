@@ -88,11 +88,7 @@ namespace DLSSArchiveBuilder
                         var zipHash = String.Empty;
                         using (var fileStream = File.OpenRead(expectedPath))
                         {
-                            using (var md5 = MD5.Create())
-                            {
-                                var hash = md5.ComputeHash(fileStream);
-                                zipHash = BitConverter.ToString(hash).Replace("-", "").ToUpperInvariant();
-                            }
+                            zipHash = fileStream.GetMD5Hash();
                         }
 
                         if (zipHash != dlssRecord.ZipMD5Hash)
