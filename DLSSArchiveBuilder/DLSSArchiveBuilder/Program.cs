@@ -55,13 +55,9 @@ namespace DLSSArchiveBuilder
                     if (File.Exists(expectedPath))
                     {
                         var zipHash = String.Empty;
-                        using (var fileStream = File.Open(expectedPath, FileMode.Open))
+                        using (var fileStream = File.OpenRead(expectedPath))
                         {
-                            using (var md5 = MD5.Create())
-                            {
-                                var hash = md5.ComputeHash(fileStream);
-                                zipHash = BitConverter.ToString(hash).Replace("-", "").ToUpperInvariant();
-                            }
+                            zipHash = fileStream.GetMD5Hash();
                         }
 
                         if (zipHash != dlssRecord.ZipMD5Hash)
@@ -82,7 +78,7 @@ namespace DLSSArchiveBuilder
                     if (File.Exists(expectedPath))
                     {
                         var zipHash = String.Empty;
-                        using (var fileStream = File.Open(expectedPath, FileMode.Open))
+                        using (var fileStream = File.OpenRead(expectedPath))
                         {
                             using (var md5 = MD5.Create())
                             {
@@ -129,15 +125,10 @@ namespace DLSSArchiveBuilder
                                     await fileStream.FlushAsync();
                                     fileStream.Position = 0;
 
-                                    using (var md5 = MD5.Create())
+                                    var downloadedFileHash = fileStream.GetMD5Hash();
+                                    if (downloadedFileHash != item.DLSSRecord.ZipMD5Hash)
                                     {
-                                        var hash = md5.ComputeHash(fileStream);
-                                        var downloadedFileHash = BitConverter.ToString(hash).Replace("-", "").ToUpperInvariant();
-
-                                        if (downloadedFileHash != item.DLSSRecord.ZipMD5Hash)
-                                        {
-                                            throw new Exception($"Expected zip hash of {item.DLSSRecord.ZipMD5Hash}, but got {downloadedFileHash}");
-                                        }
+                                        throw new Exception($"Expected zip hash of {item.DLSSRecord.ZipMD5Hash}, but got {downloadedFileHash}");
                                     }
                                 }
                             }
@@ -303,22 +294,18 @@ namespace DLSSArchiveBuilder
         static void CreateZip(DLSSRecord dlssRecord, string outputZipName)
         {
 
-            using (var zipFile = File.Open(outputZipName, FileMode.Create))
+            using (var zipFileStream = File.Create(outputZipName))
             {
-                using (var zipArchive = new ZipArchive(zipFile, ZipArchiveMode.Create, true))
+                using (var zipArchive = new ZipArchive(zipFileStream, ZipArchiveMode.Create, true))
                 {
                     zipArchive.CreateEntryFromFile(dlssRecord.Filename, Path.GetFileName(dlssRecord.Filename));
                 }
 
-                zipFile.Position = 0;
+                zipFileStream.Position = 0;
 
                 // Once again, MD5 should never be used to check if a file has been tampered with.
                 // We are simply using it to check the integrity of the downloaded/extracted file.
-                using (var md5 = MD5.Create())
-                {
-                    var hash = md5.ComputeHash(zipFile);
-                    dlssRecord.ZipMD5Hash = BitConverter.ToString(hash).Replace("-", "").ToUpperInvariant();
-                }
+                dlssRecord.ZipMD5Hash = zipFileStream.GetMD5Hash();
             }
 
             var fileInfo = new FileInfo(outputZipName);
