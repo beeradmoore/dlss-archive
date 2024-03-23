@@ -66,7 +66,7 @@ namespace DLSSArchiveBuilder
 
                         if (zipHash != dlssRecord.ZipMD5Hash)
                         {
-                            System.Diagnostics.Debug.WriteLine($"Invalid MD5 for {dlssRecord.DownloadUrl}. Expected {dlssRecord.ZipMD5Hash}, got {zipHash}");
+                            Console.WriteLine($"Invalid MD5 for {dlssRecord.DownloadUrl}. Expected {dlssRecord.ZipMD5Hash}, got {zipHash}");
                             File.Delete(expectedPath);
                             dlssToDownload.Add(new(expectedPath, dlssRecord));
                         }
@@ -93,7 +93,7 @@ namespace DLSSArchiveBuilder
 
                         if (zipHash != dlssRecord.ZipMD5Hash)
                         {
-                            System.Diagnostics.Debug.WriteLine($"Invalid MD5 for {dlssRecord.DownloadUrl}. Expected {dlssRecord.ZipMD5Hash}, got {zipHash}");
+                            Console.WriteLine($"Invalid MD5 for {dlssRecord.DownloadUrl}. Expected {dlssRecord.ZipMD5Hash}, got {zipHash}");
                             File.Delete(expectedPath);
                             dlssToDownload.Add(new(expectedPath, dlssRecord));
                         }
@@ -114,7 +114,7 @@ namespace DLSSArchiveBuilder
 
                     await Parallel.ForEachAsync(dlssToDownload, parallelOptions, async (item, token) =>
                     {
-                        System.Diagnostics.Debug.WriteLine($"Downloading {item.DLSSRecord.DownloadUrl}");
+                        Console.WriteLine($"Downloading {item.DLSSRecord.DownloadUrl}");
                         using (var stream = await httpClient.GetStreamAsync(item.DLSSRecord.DownloadUrl))
                         {
                             using (var fileStream = File.Create(item.OutputPath))
