@@ -1,5 +1,8 @@
 # DLSS Archive 
- 
+
+> [!IMPORTANT]
+> This repository is being replaced by [DLSS Swapper Manifest Builder](https://github.com/beeradmoore/dlss-swapper-manifest-builder). It will remain in its current state as the DLSS files hosted here are still used by DLSS.
+
 This DLSS Archive is used to track and archive different versions of NVIDIAs DLSS dlls.
  
 This repository is intended to be used by tools such as [DLSS Swapper](https://beeradmoore.github.io/dlss-swapper/).. If you intend to add DLSS to a game you are creating I insist you go through the correct channels and obtain the latest DLSS dlls through the [NVIDIA developer portal](https://developer.nvidia.com/dlss-getting-started).
