@@ -865,6 +865,18 @@
       "is_signature_valid": true,
       "file_size": 14452944,
       "zip_file_size": 9836996
+    },
+    {
+      "version": "310.1.0.0",
+      "version_number": 87257247075270656,
+      "additional_label": "NVIDIA DLSS",
+      "md5_hash": "117595D4839DCAB18501249CBEEE9B7A",
+      "zip_md5_hash": "9B84A916EA5F9F852F6BE6A940FAE826",
+      "download_url": "https://github.com/beeradmoore/dlss-archive/releases/download/v310.1.0.0_NVIDIA_DLSS/nvngx_dlss_310.1.0.0_NVIDIA_DLSS.zip",
+      "file_description": "NVIDIA DLSS - DVS PRODUCTION",
+      "is_signature_valid": true,
+      "file_size": 44609064,
+      "zip_file_size": 32401974
     }
   ]
 }
