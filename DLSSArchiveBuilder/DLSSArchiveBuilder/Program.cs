@@ -35,6 +35,7 @@ namespace DLSSArchiveBuilder
                 "NGX DLSS - DVS VIRTUAL",
                 "NVIDIA DLSSv2 - DVS PRODUCTION",
                 "NVIDIA DLSSv3 - DVS PRODUCTION",
+                "NVIDIA DLSS - DVS PRODUCTION",
             };
 
             var baseDllDirectory = @"base_dlss";
